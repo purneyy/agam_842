@@ -6,6 +6,7 @@ import Hero from '../components/Hero';
 import Footer from '../components/Footer';
 import FeatureCard from '../components/FeatureCard';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useNavigate } from 'react-router-dom';
 import { 
   MessageSquareText, 
   Search, 
@@ -18,6 +19,8 @@ import { cn } from '../lib/utils';
 // Features section component
 const Features = () => {
   const { t, language } = useLanguage();
+  const navigate = useNavigate();
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
   
   const features = [
     {
@@ -25,32 +28,45 @@ const Features = () => {
       icon: MessageSquareText,
       color: '#64A5FF',
       delay: 0,
+      route: '/dashboard/communication'
     },
     {
       id: 'screening',
       icon: Search,
       color: '#9B7CFF',
       delay: 100,
+      route: '/dashboard/screening'
     },
     {
       id: 'therapy',
       icon: BookOpen,
       color: '#F59E0B',
       delay: 200,
+      route: '/dashboard/therapy'
     },
     {
       id: 'tales',
       icon: Sparkles,
       color: '#10B981',
       delay: 300,
+      route: '/dashboard/tale-therapy'
     },
     {
       id: 'crisis',
       icon: Users,
       color: '#EC4899',
       delay: 400,
+      route: '/dashboard/crisis-support'
     },
   ];
+  
+  const handleFeatureClick = (route: string) => {
+    if (isLoggedIn) {
+      navigate(route);
+    } else {
+      navigate('/login');
+    }
+  };
   
   return (
     <section id="features" className="py-16 md:py-24 bg-white">
@@ -73,14 +89,15 @@ const Features = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {features.map((feature) => (
-            <FeatureCard
-              key={feature.id}
-              title={t(`features.${feature.id}.title`)}
-              description={t(`features.${feature.id}.description`)}
-              icon={feature.icon}
-              color={feature.color}
-              delay={feature.delay}
-            />
+            <div key={feature.id} onClick={() => handleFeatureClick(feature.route)} className="cursor-pointer">
+              <FeatureCard
+                title={t(`features.${feature.id}.title`)}
+                description={t(`features.${feature.id}.description`)}
+                icon={feature.icon}
+                color={feature.color}
+                delay={feature.delay}
+              />
+            </div>
           ))}
         </div>
       </div>
@@ -90,16 +107,14 @@ const Features = () => {
 
 const Index = () => {
   return (
-    <LanguageProvider>
-      <div className="min-h-screen bg-white relative">
-        <Header />
-        <main>
-          <Hero />
-          <Features />
-        </main>
-        <Footer />
-      </div>
-    </LanguageProvider>
+    <div className="min-h-screen bg-white relative">
+      <Header />
+      <main>
+        <Hero />
+        <Features />
+      </main>
+      <Footer />
+    </div>
   );
 };
 

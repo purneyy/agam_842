@@ -1,68 +1,78 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
 import { useLanguage } from '../contexts/LanguageContext';
-import { ArrowRight } from 'lucide-react';
+import { cn } from '../lib/utils';
 
 const Hero: React.FC = () => {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
+  const navigate = useNavigate();
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  
+  const handleGetStarted = () => {
+    if (isLoggedIn) {
+      navigate('/dashboard');
+    } else {
+      navigate('/signup');
+    }
+  };
 
   return (
-    <section className="pt-32 pb-16 md:pt-40 md:pb-24 bg-gradient-to-b from-agam-blue-light/50 to-white">
+    <section className="bg-gradient-to-b from-white to-blue-50 pt-20 pb-32">
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-block mb-4 px-4 py-1 bg-agam-blue/10 rounded-full text-agam-blue-dark font-semibold animate-fade-in">
-            <span className={language === 'ta' ? 'font-tamil' : ''}>
-              {language === 'en' ? 'Autism Care Platform' : 'ஆட்டிசம் பராமரிப்பு தளம்'}
-            </span>
+        <div className="flex flex-col md:flex-row items-center">
+          {/* Text content */}
+          <div className="flex-1 text-center md:text-left mb-10 md:mb-0">
+            <h1 className={cn(
+              "text-4xl md:text-5xl lg:text-6xl font-bold text-agam-neutral-800 mb-6",
+              language === 'ta' && "font-tamil"
+            )}>
+              {language === 'en' 
+                ? 'Autism Care Reimagined for Tamil Families' 
+                : 'தமிழ் குடும்பங்களுக்கான ஆட்டிசம் பராமரிப்பு மறுவடிவமைக்கப்பட்டது'}
+            </h1>
+            
+            <p className={cn(
+              "text-xl text-agam-neutral-600 mb-8 max-w-2xl",
+              language === 'ta' && "font-tamil"
+            )}>
+              {language === 'en'
+                ? 'Culturally relevant tools for communication, screening, and support - personalized for Tamil-speaking families.'
+                : 'தொடர்பாடல், திரையிடல் மற்றும் ஆதரவுக்கான கலாச்சார ரீதியாக பொருத்தமான கருவிகள் - தமிழ் பேசும் குடும்பங்களுக்கு தனிப்பயனாக்கப்பட்டது.'}
+            </p>
+            
+            <div className="flex flex-col sm:flex-row justify-center md:justify-start space-y-4 sm:space-y-0 sm:space-x-4">
+              <Button 
+                size="lg" 
+                onClick={handleGetStarted}
+                className={cn(language === 'ta' && "font-tamil")}
+              >
+                {language === 'en' ? 'Get Started' : 'தொடங்குங்கள்'}
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="lg"
+                onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+                className={cn(language === 'ta' && "font-tamil")}
+              >
+                {language === 'en' ? 'Learn More' : 'மேலும் அறிக'}
+              </Button>
+            </div>
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-agam-blue-dark to-agam-purple-dark bg-clip-text text-transparent animate-fade-in">
-            <span className={language === 'ta' ? 'font-tamil' : ''}>
-              {t('hero.title')}
-            </span>
-          </h1>
-          
-          <h2 className="text-xl md:text-2xl text-agam-neutral-600 font-medium mb-6 animate-fade-in">
-            <span className={language === 'ta' ? 'font-tamil' : ''}>
-              {t('hero.subtitle')}
-            </span>
-          </h2>
-          
-          <p className="text-agam-neutral-700 mb-8 text-lg max-w-2xl mx-auto animate-fade-in">
-            <span className={language === 'ta' ? 'font-tamil' : ''}>
-              {t('hero.description')}
-            </span>
-          </p>
-          
-          <div className="flex flex-col sm:flex-row justify-center gap-4 animate-fade-in">
-            <a
-              href="#features"
-              className="px-8 py-3 bg-agam-blue-dark text-white rounded-lg hover:bg-agam-blue transition-all duration-300 font-medium shadow-md hover:shadow-lg group"
-            >
-              <span className="flex items-center justify-center gap-2">
-                <span className={language === 'ta' ? 'font-tamil' : ''}>
-                  {t('hero.cta')}
-                </span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </span>
-            </a>
-            
-            <a
-              href="#about"
-              className="px-8 py-3 bg-white/80 text-agam-blue-dark border border-agam-blue/20 rounded-lg hover:bg-white transition-colors duration-300 font-medium shadow-sm"
-            >
-              <span className={language === 'ta' ? 'font-tamil' : ''}>
-                {t('hero.secondaryCta')}
-              </span>
-            </a>
+          {/* Image */}
+          <div className="flex-1 flex justify-center md:justify-end">
+            <img 
+              src="/placeholder.svg" 
+              alt="AGAM Platform"
+              className="max-w-full h-auto rounded-lg shadow-lg"
+              width={600}
+              height={400}
+            />
           </div>
         </div>
-      </div>
-      
-      {/* Decorative Background Elements */}
-      <div className="absolute top-0 left-0 right-0 h-[65vh] -z-10 overflow-hidden">
-        <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] rounded-full bg-agam-blue-light/30 blur-3xl"></div>
-        <div className="absolute top-[20%] -right-[10%] w-[40%] h-[40%] rounded-full bg-agam-purple-light/30 blur-3xl"></div>
       </div>
     </section>
   );
