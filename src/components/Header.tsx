@@ -1,16 +1,17 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import LanguageToggle from './LanguageToggle';
 import { useLanguage } from '../contexts/LanguageContext';
 import { cn } from '../lib/utils';
 import { Menu, X } from 'lucide-react';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Header: React.FC = () => {
   const { language } = useLanguage();
-  const { isMobile, isMenuOpen, setIsMenuOpen } = useMobile();
+  const isMobile = useIsMobile();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
