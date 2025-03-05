@@ -52,13 +52,13 @@ const calmingResponses = {
 const defaultMessages = {
   en: [
     {
-      sender: "bot",
+      sender: "bot" as const,
       text: "Hello, I'm here to help during difficult moments. What's going on right now?"
     }
   ],
   ta: [
     {
-      sender: "bot",
+      sender: "bot" as const,
       text: "வணக்கம், கடினமான தருணங்களில் உதவ நான் இங்கே இருக்கிறேன். இப்போது என்ன நடக்கிறது?"
     }
   ]

@@ -1,17 +1,12 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { 
   MessageCircle, 
   Users, 
-  BookOpen, 
-  Send,
-  AlertCircle,
-  Heart
+  BookOpen 
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 import CrisisChatbot from "../../components/crisis/CrisisChatbot";
@@ -42,12 +37,19 @@ const translations = {
 
 const CrisisSupport: React.FC = () => {
   const { language } = useLanguage();
-  const t = (path: string) => {
+  
+  const t = (path: string): string => {
     const keys = path.split(".");
-    let result = translations[language as keyof typeof translations];
+    let result: any = translations[language as keyof typeof translations];
+    
     for (const key of keys) {
-      result = result[key as keyof typeof result];
+      if (result && result[key as keyof typeof result]) {
+        result = result[key as keyof typeof result];
+      } else {
+        return path; // Return the path if translation is missing
+      }
     }
+    
     return result as string;
   };
 
