@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
 interface ProtectedRouteProps {
@@ -7,9 +7,24 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  // This is a simplified version. In a real app, you would check for authentication
-  // For now, we'll always allow access
-  const isAuthenticated = true;
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check if user is logged in by checking local storage
+    const checkAuth = () => {
+      const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      setIsAuthenticated(loggedIn);
+      setIsLoading(false);
+    };
+
+    checkAuth();
+  }, []);
+
+  if (isLoading) {
+    // You could render a loading spinner here
+    return <div className="flex h-screen items-center justify-center">Loading...</div>;
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;

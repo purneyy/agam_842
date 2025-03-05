@@ -4,6 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import LanguageToggle from './LanguageToggle';
 import { Menu, X } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { Link } from 'react-router-dom';
 
 const Header: React.FC = () => {
   const { t } = useLanguage();
@@ -112,19 +113,19 @@ const Header: React.FC = () => {
         <div className="hidden md:flex items-center space-x-4">
           <LanguageToggle />
           
-          <a
-            href="#"
+          <Link
+            to="/login"
             className="px-4 py-2 text-agam-blue-dark hover:text-agam-blue-dark/80 font-medium transition-colors"
           >
             {t('nav.login')}
-          </a>
+          </Link>
           
-          <a
-            href="#"
+          <Link
+            to="/signup"
             className="px-4 py-2 bg-agam-blue-dark text-white rounded-lg hover:bg-agam-blue transition-colors duration-300 font-medium shadow-sm"
           >
             {t('nav.signup')}
-          </a>
+          </Link>
         </div>
 
         {/* Mobile menu button */}
@@ -167,21 +168,21 @@ const Header: React.FC = () => {
           ))}
           
           <div className="border-t border-agam-neutral-200 my-2 pt-4">
-            <a
-              href="#"
+            <Link
+              to="/login"
               className="block py-3 px-4 text-lg font-medium text-agam-neutral-800 hover:bg-agam-blue/5 rounded-lg transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               {t('nav.login')}
-            </a>
+            </Link>
             
-            <a
-              href="#"
+            <Link
+              to="/signup"
               className="block mt-2 py-3 px-4 bg-agam-blue-dark text-white text-center rounded-lg font-medium shadow-sm hover:bg-agam-blue transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               {t('nav.signup')}
-            </a>
+            </Link>
           </div>
         </nav>
       </div>
