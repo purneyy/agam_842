@@ -17,21 +17,23 @@ import HelpGuides from "../../components/crisis/HelpGuides";
 const translations = {
   en: {
     title: "Crisis Support & Community Assistance",
-    description: "Access crisis support, connect with the community, and find help guides",
+    description: "Access crisis support, connect with the community, and find help guides for managing difficult situations",
     tabs: {
       chatbot: "Crisis Support Chatbot",
       community: "Community Forum",
       guides: "Help Guides"
-    }
+    },
+    note: "The crisis support chatbot provides immediate guidance for caregivers and individuals with autism during difficult moments. Common FAQs are available as buttons below the chat."
   },
   ta: {
     title: "நெருக்கடி ஆதரவு & சமூக உதவி",
-    description: "நெருக்கடி ஆதரவை அணுகவும், சமூகத்துடன் இணையவும், மற்றும் உதவி வழிகாட்டிகளைக் கண்டறியவும்",
+    description: "நெருக்கடி ஆதரவை அணுகவும், சமூகத்துடன் இணையவும், மற்றும் கடினமான சூழ்நிலைகளை நிர்வகிக்க உதவி வழிகாட்டிகளைக் கண்டறியவும்",
     tabs: {
       chatbot: "நெருக்கடி ஆதரவு அரட்டை",
       community: "சமூக மன்றம்",
       guides: "உதவி வழிகாட்டிகள்"
-    }
+    },
+    note: "நெருக்கடி ஆதரவு அரட்டை கடினமான தருணங்களில் பராமரிப்பாளர்கள் மற்றும் ஆட்டிசம் உள்ள தனிநபர்களுக்கு உடனடி வழிகாட்டுதலை வழங்குகிறது. பொதுவான கேள்விகள் அரட்டைக்கு கீழே பொத்தான்களாக கிடைக்கின்றன."
   }
 };
 
@@ -96,6 +98,14 @@ const CrisisSupport: React.FC = () => {
         </TabsList>
 
         <TabsContent value="chatbot">
+          <div className="mb-4">
+            <p className={cn(
+              "text-sm text-agam-neutral-600",
+              language === "ta" && "font-tamil"
+            )}>
+              {t("note")}
+            </p>
+          </div>
           <CrisisChatbot />
         </TabsContent>
 
