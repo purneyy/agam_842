@@ -75,8 +75,8 @@ export const translations = {
         title: "Upload Custom Materials",
         description: "Add your own therapy materials for personalized learning",
         materialType: "Material Type",
-        title: "Title",
-        description: "Description",
+        materialTitle: "Title",
+        materialDescription: "Description",
         file: "File",
         dropzone: "Click to upload or drag and drop",
         fileTypes: "PDF, PNG, JPG, MP3 (MAX. 10MB)"
@@ -210,8 +210,8 @@ export const translations = {
         title: "தனிப்பயன் பொருட்களைப் பதிவேற்றவும்",
         description: "தனிப்பயன் கற்றலுக்கான உங்கள் சொந்த சிகிச்சை பொருட்களைச் சேர்க்கவும்",
         materialType: "பொருள் வகை",
-        title: "தலைப்பு",
-        description: "விளக்கம்",
+        materialTitle: "தலைப்பு",
+        materialDescription: "விளக்கம்",
         file: "கோப்பு",
         dropzone: "பதிவேற்ற கிளிக் செய்யவும் அல்லது இழுத்து விடவும்",
         fileTypes: "PDF, PNG, JPG, MP3 (அதிகபட்சம் 10MB)"
