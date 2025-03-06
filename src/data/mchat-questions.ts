@@ -84,12 +84,12 @@ export const mchatQuestions = {
     {
       id: 17,
       question: "Does your child try to get you to watch him or her?",
-      info: "For example, does your child look at you for praise, or say "look" or "watch me"?"
+      info: "For example, does your child look at you for praise, or say \"look\" or \"watch me\"?"
     },
     {
       id: 18,
       question: "Does your child understand when you tell him or her to do something?",
-      info: "For example, if you don't point, can your child understand "put the book on the chair" or "bring me the blanket"?"
+      info: "For example, if you don't point, can your child understand \"put the book on the chair\" or \"bring me the blanket\"?"
     },
     {
       id: 19,
