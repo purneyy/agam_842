@@ -6,12 +6,14 @@ import { Card } from "@/components/ui/card";
 import { 
   MessageCircle, 
   Users, 
-  BookOpen 
+  BookOpen,
+  Smartphone
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 import CrisisChatbot from "../../components/crisis/CrisisChatbot";
 import CommunityForum from "../../components/crisis/CommunityForum";
 import HelpGuides from "../../components/crisis/HelpGuides";
+import CrisisSMSSupport from "../../components/crisis/CrisisSMSSupport";
 
 // Translations for the Crisis Support page
 const translations = {
@@ -21,7 +23,8 @@ const translations = {
     tabs: {
       chatbot: "Crisis Support Chatbot",
       community: "Community Forum",
-      guides: "Help Guides"
+      guides: "Help Guides",
+      sms: "SMS Support"
     },
     note: "The crisis support chatbot provides immediate guidance for caregivers and individuals with autism during difficult moments. Common FAQs are available as buttons below the chat."
   },
@@ -31,7 +34,8 @@ const translations = {
     tabs: {
       chatbot: "நெருக்கடி ஆதரவு அரட்டை",
       community: "சமூக மன்றம்",
-      guides: "உதவி வழிகாட்டிகள்"
+      guides: "உதவி வழிகாட்டிகள்",
+      sms: "SMS ஆதரவு"
     },
     note: "நெருக்கடி ஆதரவு அரட்டை கடினமான தருணங்களில் பராமரிப்பாளர்கள் மற்றும் ஆட்டிசம் உள்ள தனிநபர்களுக்கு உடனடி வழிகாட்டுதலை வழங்குகிறது. பொதுவான கேள்விகள் அரட்டைக்கு கீழே பொத்தான்களாக கிடைக்கின்றன."
   }
@@ -73,13 +77,20 @@ const CrisisSupport: React.FC = () => {
       </div>
 
       <Tabs defaultValue="chatbot" className="w-full">
-        <TabsList className="grid grid-cols-3 mb-8">
+        <TabsList className="grid grid-cols-4 mb-8">
           <TabsTrigger 
             value="chatbot" 
             className={cn(language === "ta" && "font-tamil")}
           >
             <MessageCircle className="mr-2 h-4 w-4" />
             {t("tabs.chatbot")}
+          </TabsTrigger>
+          <TabsTrigger 
+            value="sms"
+            className={cn(language === "ta" && "font-tamil")}
+          >
+            <Smartphone className="mr-2 h-4 w-4" />
+            {t("tabs.sms")}
           </TabsTrigger>
           <TabsTrigger 
             value="community"
@@ -107,6 +118,10 @@ const CrisisSupport: React.FC = () => {
             </p>
           </div>
           <CrisisChatbot />
+        </TabsContent>
+
+        <TabsContent value="sms">
+          <CrisisSMSSupport />
         </TabsContent>
 
         <TabsContent value="community">
