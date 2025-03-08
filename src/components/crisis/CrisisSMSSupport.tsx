@@ -1,15 +1,16 @@
+
 import React, { useState } from "react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { MessageSquareText, Send, CheckCircle2, AlertCircle, Smartphone, Phone } from "lucide-react";
+import { MessageSquareText, Send, CheckCircle2, AlertCircle, Smartphone, Phone, Info } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { sendSMS, processIncomingSMS, findAvailableCounselor } from "../../utils/TwilioService";
+import { sendSMS, processIncomingSMS, findAvailableCounselor, validateIndianPhoneNumber } from "../../utils/TwilioService";
 
-// Mock SMS conversation for demo purposes
+// SMS message interface
 interface SMSMessage {
   content: string;
   timestamp: Date;
@@ -24,18 +25,31 @@ const CrisisSMSSupport: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mockConversation, setMockConversation] = useState<SMSMessage[]>([]);
   const [showDemo, setShowDemo] = useState(false);
+  const [isRealSMS, setIsRealSMS] = useState(false);
   
   // Crisis support phone number
   const crisisNumber = "+1-800-AGAM-HELP";
   
-  // Handle sending a demo SMS message
-  const handleSendDemoSMS = async () => {
+  // Handle sending an SMS message
+  const handleSendSMS = async () => {
     if (!phoneNumber) {
       toast({
         title: language === "en" ? "Phone number required" : "தொலைபேசி எண் தேவை",
         description: language === "en" 
           ? "Please enter a phone number to continue" 
           : "தொடர தொலைபேசி எண்ணை உள்ளிடவும்",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Validate Indian phone number
+    if (!validateIndianPhoneNumber(phoneNumber)) {
+      toast({
+        title: language === "en" ? "Invalid phone number" : "தவறான தொலைபேசி எண்",
+        description: language === "en" 
+          ? "Please enter a valid Indian phone number" 
+          : "சரியான இந்திய தொலைபேசி எண்ணை உள்ளிடவும்",
         variant: "destructive"
       });
       return;
@@ -64,52 +78,91 @@ const CrisisSMSSupport: React.FC = () => {
     setMockConversation(prev => [...prev, outgoingMessage]);
     
     try {
-      // Process the message as if it was received by our system
-      const responseText = processIncomingSMS(message, phoneNumber, language as 'en' | 'ta');
-      
-      // Simulate a delay for realism
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Add system response to conversation
-      const incomingMessage: SMSMessage = {
-        content: responseText,
-        timestamp: new Date(),
-        type: 'incoming'
-      };
-      
-      setMockConversation(prev => [...prev, incomingMessage]);
-      
-      // Find an appropriate counselor based on the message
-      const counselor = findAvailableCounselor(message, language as 'en' | 'ta');
-      
-      if (counselor) {
-        // Notify that a counselor will be in touch
-        await new Promise(resolve => setTimeout(resolve, 2000));
+      if (isRealSMS) {
+        // Send real SMS using Twilio
+        const result = await sendSMS({
+          to: phoneNumber,
+          body: message,
+          language: language as 'en' | 'ta'
+        });
         
-        const counselorMessage: SMSMessage = {
-          content: language === "en" 
-            ? `A counselor specializing in ${counselor.specialty} will contact you shortly. Counselor name: ${counselor.name}` 
-            : `${counselor.specialty} இல் நிபுணத்துவம் பெற்ற ஆலோசகர் விரைவில் உங்களைத் தொடர்பு கொள்வார். ஆலோசகர் பெயர்: ${counselor.name}`,
+        if (result) {
+          toast({
+            title: language === "en" ? "SMS Sent" : "SMS அனுப்பப்பட்டது",
+            description: language === "en" 
+              ? "Your message has been sent successfully" 
+              : "உங்கள் செய்தி வெற்றிகரமாக அனுப்பப்பட்டது",
+            variant: "default"
+          });
+          
+          // Process the response as if it was received
+          const responseText = processIncomingSMS(message, phoneNumber, language as 'en' | 'ta');
+          
+          // Add system response to conversation
+          const incomingMessage: SMSMessage = {
+            content: responseText,
+            timestamp: new Date(),
+            type: 'incoming'
+          };
+          
+          setMockConversation(prev => [...prev, incomingMessage]);
+        } else {
+          toast({
+            title: language === "en" ? "Failed to send SMS" : "SMS அனுப்ப முடியவில்லை",
+            description: language === "en" 
+              ? "There was an error sending your message. Please try again." 
+              : "உங்கள் செய்தியை அனுப்புவதில் பிழை ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.",
+            variant: "destructive"
+          });
+        }
+      } else {
+        // Process the message as if it was received by our system (demo mode)
+        const responseText = processIncomingSMS(message, phoneNumber, language as 'en' | 'ta');
+        
+        // Simulate a delay for realism
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Add system response to conversation
+        const incomingMessage: SMSMessage = {
+          content: responseText,
           timestamp: new Date(),
           type: 'incoming'
         };
         
-        setMockConversation(prev => [...prev, counselorMessage]);
+        setMockConversation(prev => [...prev, incomingMessage]);
+        
+        // Find an appropriate counselor based on the message
+        const counselor = findAvailableCounselor(message, language as 'en' | 'ta');
+        
+        if (counselor) {
+          // Notify that a counselor will be in touch
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          
+          const counselorMessage: SMSMessage = {
+            content: language === "en" 
+              ? `A counselor specializing in ${counselor.specialty} will contact you shortly. Counselor name: ${counselor.name}` 
+              : `${counselor.specialty} இல் நிபுணத்துவம் பெற்ற ஆலோசகர் விரைவில் உங்களைத் தொடர்பு கொள்வார். ஆலோசகர் பெயர்: ${counselor.name}`,
+            timestamp: new Date(),
+            type: 'incoming'
+          };
+          
+          setMockConversation(prev => [...prev, counselorMessage]);
+        }
+        
+        toast({
+          title: language === "en" ? "Message sent" : "செய்தி அனுப்பப்பட்டது",
+          description: language === "en" 
+            ? "Your message has been sent successfully (Demo Mode)" 
+            : "உங்கள் செய்தி வெற்றிகரமாக அனுப்பப்பட்டது (டெமோ முறை)",
+          variant: "default"
+        });
       }
       
       // Clear the message input
       setMessage("");
       
-      toast({
-        title: language === "en" ? "Message sent" : "செய்தி அனுப்பப்பட்டது",
-        description: language === "en" 
-          ? "Your message has been sent successfully" 
-          : "உங்கள் செய்தி வெற்றிகரமாக அனுப்பப்பட்டது",
-        variant: "default"
-      });
-      
     } catch (error) {
-      console.error("Error in demo SMS flow:", error);
+      console.error("Error in SMS flow:", error);
       toast({
         title: language === "en" ? "Error" : "பிழை",
         description: language === "en" 
@@ -122,8 +175,8 @@ const CrisisSMSSupport: React.FC = () => {
     }
   };
   
-  // Handle starting a new demo conversation
-  const handleStartDemo = () => {
+  // Handle starting a conversation
+  const handleStartConversation = () => {
     setShowDemo(true);
     setMockConversation([
       {
@@ -136,18 +189,17 @@ const CrisisSMSSupport: React.FC = () => {
     ]);
   };
   
-  // Format phone number as user types
+  // Format phone number as user types for Indian phone numbers
   const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Keep only digits
     const digits = e.target.value.replace(/\D/g, '');
     
-    // Format the phone number as: (123) 456-7890
-    if (digits.length <= 3) {
+    // Format the phone number based on Indian standard
+    if (digits.length <= 10) {
       setPhoneNumber(digits);
-    } else if (digits.length <= 6) {
-      setPhoneNumber(`(${digits.slice(0, 3)}) ${digits.slice(3)}`);
     } else {
-      setPhoneNumber(`(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`);
+      // Truncate to 10 digits if longer
+      setPhoneNumber(digits.substring(0, 10));
     }
   };
   
@@ -191,12 +243,12 @@ const CrisisSMSSupport: React.FC = () => {
                     : "எங்கள் SMS ஆதரவு அமைப்பு எந்த மொபைல் போனிலும் நெட்வொர்க்கிலும் செயல்படும், வரம்பப்படுத்தப்பட்ட இணைப்புடன் தொலைதூர பகுதிகளிலும் கூட."}
                 </p>
                 <Button 
-                  onClick={handleStartDemo} 
+                  onClick={handleStartConversation} 
                   className="bg-agam-blue hover:bg-agam-blue/90"
                 >
                   <Phone className="mr-2 h-4 w-4" />
                   <span className={cn(language === "ta" && "font-tamil")}>
-                    {language === "en" ? "Try SMS Support Demo" : "SMS ஆதரவு டெமோவை முயற்சிக்கவும்"}
+                    {language === "en" ? "Try SMS Support" : "SMS ஆதரவை முயற்சிக்கவும்"}
                   </span>
                 </Button>
               </div>
@@ -278,17 +330,40 @@ const CrisisSMSSupport: React.FC = () => {
           </div>
         ) : (
           <div className="flex flex-col gap-4">
+            <div className="flex justify-between items-center mb-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="realSms" className={cn(language === "ta" && "font-tamil")}>
+                  {language === "en" ? "Use Real Twilio SMS" : "உண்மையான Twilio SMS ஐப் பயன்படுத்து"}
+                </Label>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="realSms"
+                    checked={isRealSMS}
+                    onChange={(e) => setIsRealSMS(e.target.checked)}
+                    className="h-4 w-4 rounded border-gray-300 text-agam-blue focus:ring-agam-blue"
+                  />
+                  <Info className="h-4 w-4 ml-2 text-gray-400 cursor-help" title={language === "en" ? "When enabled, real SMS will be sent via Twilio" : "இயக்கப்பட்டால், உண்மையான SMS Twilio வழியாக அனுப்பப்படும்"} />
+                </div>
+              </div>
+            </div>
+            
             <div className="flex flex-col gap-2">
               <Label htmlFor="phone" className={cn(language === "ta" && "font-tamil")}>
                 {language === "en" ? "Your Phone Number" : "உங்கள் தொலைபேசி எண்"}
               </Label>
               <Input 
                 id="phone"
-                placeholder={language === "en" ? "(123) 456-7890" : "தொலைபேசி எண்ணை உள்ளிடவும்"}
+                placeholder={language === "en" ? "Enter 10-digit mobile number" : "10-இலக்க மொபைல் எண்ணை உள்ளிடவும்"}
                 value={phoneNumber}
                 onChange={handlePhoneNumberChange}
                 className={cn(language === "ta" && "font-tamil")}
               />
+              <p className="text-xs text-gray-500">
+                {language === "en" 
+                  ? "Enter a 10-digit Indian mobile number" 
+                  : "10-இலக்க இந்திய மொபைல் எண்ணை உள்ளிடவும்"}
+              </p>
             </div>
             
             <div className="border rounded-md p-3 h-80 overflow-y-auto flex flex-col gap-3">
@@ -317,10 +392,10 @@ const CrisisSMSSupport: React.FC = () => {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 className={cn(language === "ta" && "font-tamil")}
-                onKeyPress={(e) => e.key === 'Enter' && handleSendDemoSMS()}
+                onKeyPress={(e) => e.key === 'Enter' && handleSendSMS()}
               />
               <Button
-                onClick={handleSendDemoSMS}
+                onClick={handleSendSMS}
                 disabled={isSubmitting}
                 className="bg-agam-blue hover:bg-agam-blue/90"
               >
@@ -346,9 +421,13 @@ const CrisisSMSSupport: React.FC = () => {
           language === "ta" && "font-tamil"
         )}>
           <AlertCircle className="h-4 w-4 inline-block mr-1 text-yellow-500" />
-          {language === "en" 
-            ? "This is a demonstration. In a real implementation, messages would be sent through the Twilio API." 
-            : "இது ஒரு செயல்விளக்கம். உண்மையான அமலாக்கத்தில், செய்திகள் Twilio API மூலம் அனுப்பப்படும்."}
+          {isRealSMS 
+            ? (language === "en" 
+                ? "Using real Twilio SMS. Standard SMS rates may apply." 
+                : "உண்மையான Twilio SMS ஐப் பயன்படுத்துகிறது. நிலையான SMS கட்டணங்கள் பொருந்தலாம்.")
+            : (language === "en" 
+                ? "This is a demonstration. No real SMS will be sent unless you enable 'Use Real Twilio SMS'." 
+                : "இது ஒரு செயல்விளக்கம். 'உண்மையான Twilio SMS ஐப் பயன்படுத்து' என்பதை இயக்காவிட்டால் உண்மையான SMS அனுப்பப்படாது.")}
         </div>
       </CardFooter>
     </Card>

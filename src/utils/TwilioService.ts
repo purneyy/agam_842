@@ -1,4 +1,3 @@
-
 // This file contains utility functions for interacting with the Twilio SMS API
 
 interface SMSMessage {
@@ -7,11 +6,11 @@ interface SMSMessage {
   language?: 'en' | 'ta';
 }
 
-// Simulating Twilio credentials - in a production environment, 
+// Twilio credentials - in a production environment,
 // these should be stored securely in environment variables
-const TWILIO_ACCOUNT_SID = 'YOUR_ACCOUNT_SID'; // Replace with actual SID in production
-const TWILIO_AUTH_TOKEN = 'YOUR_AUTH_TOKEN'; // Replace with actual token in production
-const TWILIO_PHONE_NUMBER = '+1234567890'; // Replace with your Twilio phone number
+const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID || 'YOUR_ACCOUNT_SID';
+const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN || 'YOUR_AUTH_TOKEN';
+const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER || '+1234567890'; // Replace with your Twilio phone number
 
 // Language-specific response templates
 const responseTemplates = {
@@ -35,13 +34,21 @@ const responseTemplates = {
   }
 };
 
-// Mock function to send SMS using Twilio
+// Function to send SMS using Twilio
 export const sendSMS = async (message: SMSMessage): Promise<boolean> => {
   console.log(`Sending SMS to ${message.to}: ${message.body}`);
   
-  // In a real implementation, this would make an API call to Twilio
-  // Example using fetch:
-  /*
+  // Format Indian phone number if needed (add +91 if not present)
+  let formattedNumber = message.to;
+  if (!formattedNumber.startsWith('+')) {
+    // If the number doesn't start with +, add India country code
+    if (formattedNumber.startsWith('91')) {
+      formattedNumber = '+' + formattedNumber;
+    } else {
+      formattedNumber = '+91' + formattedNumber;
+    }
+  }
+  
   try {
     const response = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`, {
       method: 'POST',
@@ -50,22 +57,25 @@ export const sendSMS = async (message: SMSMessage): Promise<boolean> => {
         'Authorization': 'Basic ' + btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`)
       },
       body: new URLSearchParams({
-        To: message.to,
+        To: formattedNumber,
         From: TWILIO_PHONE_NUMBER,
         Body: message.body
       })
     });
     
     const data = await response.json();
+    console.log('Twilio API response:', data);
+    
+    if (data.error_code) {
+      console.error('Twilio error:', data.error_message);
+      return false;
+    }
+    
     return data.status === 'queued' || data.status === 'sent';
   } catch (error) {
     console.error('Error sending SMS:', error);
     return false;
   }
-  */
-  
-  // Simulating a successful SMS for demonstration
-  return new Promise(resolve => setTimeout(() => resolve(true), 1000));
 };
 
 // Process incoming SMS messages and provide appropriate responses
@@ -124,4 +134,24 @@ export const findAvailableCounselor = (messageContent: string, language: 'en' | 
   
   // Return the first matching counselor or null if none found
   return matchingCounselors.length > 0 ? matchingCounselors[0] : null;
+};
+
+// Validate Indian phone numbers
+export const validateIndianPhoneNumber = (number: string): boolean => {
+  // Remove all non-digit characters
+  const digitsOnly = number.replace(/\D/g, '');
+  
+  // Check if it's a valid Indian mobile number (10 digits, or 11-12 with country code)
+  if (digitsOnly.length === 10) {
+    // 10-digit number starting with 6, 7, 8, or 9
+    return /^[6-9]\d{9}$/.test(digitsOnly);
+  } else if (digitsOnly.length === 11 && digitsOnly.startsWith('0')) {
+    // 11-digit number starting with 0 followed by 6, 7, 8, or 9
+    return /^0[6-9]\d{9}$/.test(digitsOnly);
+  } else if (digitsOnly.length === 12 && digitsOnly.startsWith('91')) {
+    // 12-digit number with 91 country code
+    return /^91[6-9]\d{9}$/.test(digitsOnly);
+  }
+  
+  return false;
 };
