@@ -9,6 +9,7 @@ import { MessageSquareText, Send, CheckCircle2, AlertCircle, Smartphone, Phone, 
 import { cn } from "../../lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { sendSMS, processIncomingSMS, findAvailableCounselor, validateIndianPhoneNumber } from "../../utils/TwilioService";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 // SMS message interface
 interface SMSMessage {
@@ -343,7 +344,18 @@ const CrisisSMSSupport: React.FC = () => {
                     onChange={(e) => setIsRealSMS(e.target.checked)}
                     className="h-4 w-4 rounded border-gray-300 text-agam-blue focus:ring-agam-blue"
                   />
-                  <Info className="h-4 w-4 ml-2 text-gray-400 cursor-help" title={language === "en" ? "When enabled, real SMS will be sent via Twilio" : "இயக்கப்பட்டால், உண்மையான SMS Twilio வழியாக அனுப்பப்படும்"} />
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 ml-2 text-gray-400 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {language === "en" 
+                          ? "When enabled, real SMS will be sent via Twilio" 
+                          : "இயக்கப்பட்டால், உண்மையான SMS Twilio வழியாக அனுப்பப்படும்"}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </div>
             </div>
